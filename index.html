@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro de Votos - Campaña</title>
+    <style>
+        body { font-family: Arial, sans-serif; background: #f4f6f9; padding: 20px; margin: 0; }
+        .container { max-width: 400px; margin: 0 auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        h2 { text-align: center; color: #333; }
+        label { font-weight: bold; display: block; margin-top: 15px; color: #555; }
+        input { width: 100%; padding: 12px; margin-top: 5px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; font-size: 16px; }
+        button { width: 100%; background: #28a745; color: white; border: none; padding: 14px; margin-top: 20px; font-size: 16px; font-weight: bold; border-radius: 5px; cursor: pointer; }
+        button:hover { background: #218838; }
+        .lista { margin-top: 30px; }
+        .item { background: #e9ecef; padding: 10px; margin-top: 8px; border-radius: 5px; font-size: 14px; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Votos Tren 🚂</h2>
+    <label>Nombre del Vecino:</label>
+    <input type="text" id="nombre" placeholder="Ej. Juan Pérez">
+
+    <label>Celular / WhatsApp:</label>
+    <input type="tel" id="telefono" placeholder="Ej. 912345678">
+
+    <label>Caserío o Sector:</label>
+    <input type="caserio" id="caserio" placeholder="Ej. Mochumí Viejo">
+
+    <button onclick="guardarDato()">GUARDAR</button>
+
+    <div class="lista">
+        <h3>Registrados hoy:</h3>
+        <div id="resultado"></div>
+    </div>
+</div>
+
+<script>
+    function guardarDato() {
+        let n = document.getElementById('nombre').value;
+        let t = document.getElementById('telefono').value;
+        let c = document.getElementById('caserio').value;
+
+        if(!n || !t || !c) {
+            alert("Llena todos los espacios por favor.");
+            return;
+        }
+
+        let registro = { nombre: n, telefono: t, caserio: c };
+        let guardados = JSON.parse(localStorage.getItem('votos_campana') || '[]');
+        guardados.push(registro);
+        localStorage.setItem('votos_campana', JSON.stringify(guardados));
+
+        alert("¡Guardado con éxito!");
+        document.getElementById('nombre').value = '';
+        document.getElementById('telefono').value = '';
+        document.getElementById('caserio').value = '';
+        mostrarLista();
+    }
+
+    function mostrarLista() {
+        let guardados = JSON.parse(localStorage.getItem('votos_campana') || '[]');
+        let html = '';
+        for(let i = guardados.length - 1; i >= 0; i--) {
+            html += `<div class="item"><b>${guardados[i].nombre}</b> - ${guardados[i].telefono} (${guardados[i].caserio})</div>`;
+        }
+        document.getElementById('resultado').innerHTML = html;
+    }
+
+    mostrarLista();
+</script>
+
+</body>
+</html>
