@@ -19,15 +19,15 @@
 <body>
 
 <div class="container">
-    <h2>Votos Tren 🚂</h2>
-    <label>Nombre del Vecino:</label>
+    <h2>Avanza País - Base Túcume</h2>
+    <label>Nombre:</label>
     <input type="text" id="nombre" placeholder="Ej. Juan Pérez">
 
     <label>Celular / WhatsApp:</label>
     <input type="tel" id="telefono" placeholder="Ej. 912345678">
 
     <label>Caserío o Sector:</label>
-    <input type="caserio" id="caserio" placeholder="Ej. Mochumí Viejo">
+    <input type="text" id="caserio" placeholder="Ej. Mochumí Viejo">
 
     <button onclick="guardarDato()">GUARDAR</button>
 
@@ -61,7 +61,7 @@
     }
 
     function mostrarLista() {
-        let guardados = JSON.parse(localStorage.getItem('votos_campana') || '[]');
+        let guardados = JSON.parse(localStorage.getItem('voton_campana') || localStorage.getItem('votos_campana') || '[]');
         let html = '';
         for(let i = guardados.length - 1; i >= 0; i--) {
             html += `<div class="item"><b>${guardados[i].nombre}</b> - ${guardados[i].telefono} (${guardados[i].caserio})</div>`;
