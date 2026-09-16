@@ -3,73 +3,207 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Registro de Votos - Campaña</title>
+    <title>Avanza País - Base Túcume</title>
     <style>
-        body { font-family: Arial, sans-serif; background: #f4f6f9; padding: 20px; margin: 0; }
-        .container { max-width: 400px; margin: 0 auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
-        h2 { text-align: center; color: #333; }
-        label { font-weight: bold; display: block; margin-top: 15px; color: #555; }
-        input { width: 100%; padding: 12px; margin-top: 5px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; font-size: 16px; }
-        button { width: 100%; background: #28a745; color: white; border: none; padding: 14px; margin-top: 20px; font-size: 16px; font-weight: bold; border-radius: 5px; cursor: pointer; }
-        button:hover { background: #218838; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background: #f8f9fa; padding: 15px; margin: 0; }
+        .container { max-width: 400px; margin: 0 auto; background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+
+        .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #e9ecef; padding-bottom: 15px; margin-bottom: 20px; }
+        h2 { margin: 0; color: #333; font-size: 1.4em; }
+        .logo-box { width: 60px; height: 60px; border: 1px solid #ccc; border-radius: 5px; display: flex; align-items: center; justify-content: center; color: #888; font-size: 0.8em; overflow: hidden; }
+        .logo-box img { max-width: 100%; max-height: 100%; object-fit: contain; }
+
+        label { font-weight: 600; display: block; margin-top: 12px; color: #555; font-size: 0.9em; }
+        input { width: 100%; padding: 12px; margin-top: 6px; border: 1px solid #ced4da; border-radius: 8px; box-sizing: border-box; font-size: 1em; background: #fff; }
+        input:focus { outline: none; border-color: #80bdff; box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25); }
+
+        button.btn-guardar { width: 100%; background-color: #d63384; color: white; border: none; padding: 15px; margin-top: 25px; font-size: 1.1em; font-weight: bold; border-radius: 8px; cursor: pointer; transition: background 0.2s; }
+        button.btn-guardar:active { background-color: #a32765; }
+
         .lista { margin-top: 30px; }
-        .item { background: #e9ecef; padding: 10px; margin-top: 8px; border-radius: 5px; font-size: 14px; }
+        h3 { color: #495057; font-size: 1.2em; margin-bottom: 15px; }
+
+        /* Tarjeta de contacto */
+        .item { background: #fff; padding: 12px; margin-top: 10px; border-radius: 10px; border: 1px solid #e9ecef; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+        .item-main-row { display: flex; justify-content: space-between; align-items: center; }
+        .item-nombre { font-weight: bold; color: #212529; font-size: 1.05em; }
+        
+        .btn-desplegar { background: #e9ecef; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 0.85em; font-weight: bold; color: #495057; }
+        .btn-desplegar:hover { background: #dee2e6; }
+
+        /* Contenido desplegable */
+        .item-detalles { display: none; margin-top: 10px; padding-top: 10px; border-top: 1px solid #f1f3f5; font-size: 0.9em; color: #555; }
+        .item-detalles.activo { display: block; }
+        .detalle-linea { margin-bottom: 5px; }
+        .detalle-label { font-weight: 600; color: #6c757d; }
+
+        /* Botones de acción inferiores */
+        .item-acciones { margin-top: 12px; display: flex; gap: 8px; justify-content: flex-end; align-items: center; }
+        .btn-accion { background: transparent; border: 1px solid #ced4da; color: #6c757d; padding: 5px 10px; border-radius: 5px; font-size: 0.8em; cursor: pointer; }
+        .btn-accion:hover { background: #f8f9fa; }
+        .btn-eliminar { color: #dc3545; border-color: #dc3545; }
+        .btn-eliminar:hover { background-color: #fff5f5; }
+        
+        /* Botón WhatsApp */
+        .btn-wa { background: #25d366; color: white; border: none; padding: 5px 10px; border-radius: 5px; font-size: 0.8em; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 4px; text-decoration: none; }
+        .btn-wa.agregado { background: #6c757d; cursor: default; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h2>Avanza País - Base Túcume</h2>
+    <div class="header">
+        <h2>Avanza País<br>Base Túcume</h2>
+        <div class="logo-box">
+            <img src="logo.png" alt="Logo" onerror="this.parentElement.innerHTML='LOGO'">
+        </div>
+    </div>
+
     <label>Nombre:</label>
-    <input type="text" id="nombre" placeholder="Ej. Juan Pérez">
+    <input type="text" id="nombre" placeholder="Ej. Anais Baldera Lopez">
 
     <label>Celular / WhatsApp:</label>
-    <input type="tel" id="telefono" placeholder="Ej. 912345678">
+    <input type="tel" id="telefono" placeholder="Ej. 991049389">
 
     <label>Caserío o Sector:</label>
-    <input type="text" id="caserio" placeholder="Ej. Mochumí Viejo">
+    <input type="text" id="caserio" placeholder="Ej. Mariscal Castilla">
 
-    <button onclick="guardarDato()">GUARDAR</button>
+    <label>Descripción:</label>
+    <input type="text" id="descripcion" placeholder="Ej. Apoya gestión...">
+
+    <button class="btn-guardar" onclick="guardarContacto()">GUARDAR</button>
 
     <div class="lista">
-        <h3>Registrados hoy:</h3>
-        <div id="resultado"></div>
+        <h3>Registrados:</h3>
+        <div id="lista-contactos"></div>
     </div>
 </div>
 
 <script>
-    function guardarDato() {
-        let n = document.getElementById('nombre').value;
-        let t = document.getElementById('telefono').value;
-        let c = document.getElementById('caserio').value;
+    document.addEventListener('DOMContentLoaded', cargarContactos);
 
-        if(!n || !t || !c) {
-            alert("Llena todos los espacios por favor.");
+    function obtenerFechaHoraActual() {
+        const ahora = new Date();
+        const fecha = ahora.toLocaleDateString('es-PE');
+        const hora = ahora.toLocaleTimeString('es-PE', { hour: '2-digit', minute: '2-digit' });
+        return `${fecha} ${hora}`;
+    }
+
+    function guardarContacto() {
+        const nombre = document.getElementById('nombre').value;
+        const telefono = document.getElementById('telefono').value;
+        const caserio = document.getElementById('caserio').value;
+        const descripcion = document.getElementById('descripcion').value;
+
+        if (!nombre) {
+            alert("Por favor, ingresa el nombre.");
             return;
         }
 
-        let registro = { nombre: n, telefono: t, caserio: c };
-        let guardados = JSON.parse(localStorage.getItem('votos_campana') || '[]');
-        guardados.push(registro);
-        localStorage.setItem('votos_campana', JSON.stringify(guardados));
+        const nuevoContacto = {
+            id: Date.now(),
+            nombre: nombre,
+            telefono: telefono,
+            caserio: caserio,
+            descripcion: descripcion,
+            fechaHora: obtenerFechaHoraActual(),
+            enGrupoWa: false // Controla si ya fue agregado a WhatsApp
+        };
 
-        alert("¡Guardado con éxito!");
+        let contactos = JSON.parse(localStorage.getItem('contactos_tucume') || '[]');
+        contactos = [nuevoContacto, ...contactos];
+        localStorage.setItem('contactos_tucume', JSON.stringify(contactos));
+
         document.getElementById('nombre').value = '';
         document.getElementById('telefono').value = '';
         document.getElementById('caserio').value = '';
-        mostrarLista();
+        document.getElementById('descripcion').value = '';
+        
+        alert("¡Guardado con éxito!");
+        cargarContactos();
     }
 
-    function mostrarLista() {
-        let guardados = JSON.parse(localStorage.getItem('voton_campana') || localStorage.getItem('votos_campana') || '[]');
-        let html = '';
-        for(let i = guardados.length - 1; i >= 0; i--) {
-            html += `<div class="item"><b>${guardados[i].nombre}</b> - ${guardados[i].telefono} (${guardados[i].caserio})</div>`;
+    function cargarContactos() {
+        const contenedor = document.getElementById('lista-contactos');
+        contenedor.innerHTML = '';
+        const contactos = JSON.parse(localStorage.getItem('contactos_tucume') || '[]');
+
+        if (contactos.length === 0) {
+            contenedor.innerHTML = '<p style="color:#888; font-size:0.9em; text-align:center;">No hay registros aún.</p>';
+            return;
         }
-        document.getElementById('resultado').innerHTML = html;
+
+        contactos.forEach((contacto) => {
+            const itemDiv = document.createElement('div');
+            itemDiv.className = 'item';
+
+            // Botón de WhatsApp según estado
+            let waHtml = '';
+            if (contacto.enGrupoWa) {
+                waHtml = `<span class="btn-wa agregado">✓ En Grupo</span>`;
+            } else {
+                waHtml = `<a href="https://wa.me/51${contacto.telefono}?text=Hola%20${encodeURIComponent(contacto.nombre)},%20bienvenido%20a%20la%20Base%20Túcume" target="_blank" class="btn-wa" onclick="marcarComoAgregado(${contacto.id})">📲 WhatsApp</a>`;
+            }
+
+            itemDiv.innerHTML = `
+                <div class="item-main-row">
+                    <span class="item-nombre">${contacto.nombre}</span>
+                    <button class="btn-desplegar" onclick="toggleDetalle(${contacto.id})">Detalle ▾</button>
+                </div>
+                <div class="item-detalles" id="detalle-${contacto.id}">
+                    <div class="detalle-linea"><span class="detalle-label">Fecha/Hora:</span> ${contacto.fechaHora}</div>
+                    <div class="detalle-linea"><span class="detalle-label">Celular:</span> ${contacto.telefono}</div>
+                    <div class="detalle-linea"><span class="detalle-label">Caserío:</span> ${contacto.caserio}</div>
+                    <div class="detalle-linea"><span class="detalle-label">Descripción:</span> ${contacto.descripcion}</div>
+                    <div class="item-acciones">
+                        ${waHtml}
+                        <button class="btn-accion" onclick="editarContacto(${contacto.id})">Editar</button>
+                        <button class="btn-accion btn-eliminar" onclick="eliminarContacto(${contacto.id})">Eliminar</button>
+                    </div>
+                </div>
+            `;
+            contenedor.appendChild(itemDiv);
+        });
     }
 
-    mostrarLista();
+    function toggleDetalle(id) {
+        const el = document.getElementById(`detalle-${id}`);
+        el.classList.toggle('activo');
+    }
+
+    function marcarComoAgregado(id) {
+        let contactos = JSON.parse(localStorage.getItem('contactos_tucume') || '[]');
+        contactos = contactos.map(c => {
+            if(c.id === id) c.enGrupoWa = true;
+            return c;
+        });
+        localStorage.setItem('contactos_tucume', JSON.stringify(contactos));
+    }
+
+    function eliminarContacto(id) {
+        if (!confirm('¿Seguro que deseas eliminar este registro?')) return;
+        let contactos = JSON.parse(localStorage.getItem('contactos_tucume') || '[]');
+        contactos = contactos.filter(c => c.id !== id);
+        localStorage.setItem('contactos_tucume', JSON.stringify(contactos));
+        cargarContactos();
+    }
+
+    function editarContacto(id) {
+        let contactos = JSON.parse(localStorage.getItem('contactos_tucume') || '[]');
+        let c = contactos.find(item => item.id === id);
+        if(!c) return;
+
+        document.getElementById('nombre').value = c.nombre;
+        document.getElementById('telefono').value = c.telefono;
+        document.getElementById('caserio').value = c.caserio;
+        document.getElementById('descripcion').value = c.descripcion;
+
+        // Eliminar el antiguo para guardarlo actualizado
+        contactos = contactos.filter(item => item.id !== id);
+        localStorage.setItem('contactos_tucume', JSON.stringify(contactos));
+        cargarContactos();
+        window.scrollTo({top: 0, behavior: 'smooth'});
+    }
 </script>
 
 </body>
