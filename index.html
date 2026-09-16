@@ -10,8 +10,8 @@
 
         .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #e9ecef; padding-bottom: 15px; margin-bottom: 20px; }
         h2 { margin: 0; color: #333; font-size: 1.4em; }
-        .logo-box { width: 60px; height: 60px; border: 1px solid #ccc; border-radius: 5px; display: flex; align-items: center; justify-content: center; color: #888; font-size: 0.8em; overflow: hidden; }
-        .logo-box img { max-width: 100%; max-height: 100%; object-fit: contain; }
+        .logo-box { width: 65px; height: 65px; border: 1px solid #ced4da; border-radius: 8px; display: flex; align-items: center; justify-content: center; background: #fff; overflow: hidden; }
+        .logo-box img { width: 100%; height: 100%; object-fit: contain; }
 
         label { font-weight: 600; display: block; margin-top: 12px; color: #555; font-size: 0.9em; }
         input { width: 100%; padding: 12px; margin-top: 6px; border: 1px solid #ced4da; border-radius: 8px; box-sizing: border-box; font-size: 1em; background: #fff; }
@@ -23,7 +23,6 @@
         .lista { margin-top: 30px; }
         h3 { color: #495057; font-size: 1.2em; margin-bottom: 15px; }
 
-        /* Tarjeta de contacto */
         .item { background: #fff; padding: 12px; margin-top: 10px; border-radius: 10px; border: 1px solid #e9ecef; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
         .item-main-row { display: flex; justify-content: space-between; align-items: center; }
         .item-nombre { font-weight: bold; color: #212529; font-size: 1.05em; }
@@ -31,20 +30,17 @@
         .btn-desplegar { background: #e9ecef; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 0.85em; font-weight: bold; color: #495057; }
         .btn-desplegar:hover { background: #dee2e6; }
 
-        /* Contenido desplegable */
         .item-detalles { display: none; margin-top: 10px; padding-top: 10px; border-top: 1px solid #f1f3f5; font-size: 0.9em; color: #555; }
         .item-detalles.activo { display: block; }
         .detalle-linea { margin-bottom: 5px; }
         .detalle-label { font-weight: 600; color: #6c757d; }
 
-        /* Botones de acción inferiores */
-        .item-acciones { margin-top: 12px; display: flex; gap: 8px; justify-content: flex-end; align-items: center; }
+        .item-acciones { margin-top: 12px; display: flex; gap: 8px; justify-content: flex-end; align-items: center; flex-wrap: wrap; }
         .btn-accion { background: transparent; border: 1px solid #ced4da; color: #6c757d; padding: 5px 10px; border-radius: 5px; font-size: 0.8em; cursor: pointer; }
         .btn-accion:hover { background: #f8f9fa; }
         .btn-eliminar { color: #dc3545; border-color: #dc3545; }
         .btn-eliminar:hover { background-color: #fff5f5; }
         
-        /* Botón WhatsApp */
         .btn-wa { background: #25d366; color: white; border: none; padding: 5px 10px; border-radius: 5px; font-size: 0.8em; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 4px; text-decoration: none; }
         .btn-wa.agregado { background: #6c757d; cursor: default; }
     </style>
@@ -107,7 +103,7 @@
             caserio: caserio,
             descripcion: descripcion,
             fechaHora: obtenerFechaHoraActual(),
-            enGrupoWa: false // Controla si ya fue agregado a WhatsApp
+            enGrupoWa: false
         };
 
         let contactos = JSON.parse(localStorage.getItem('contactos_tucume') || '[]');
@@ -137,12 +133,15 @@
             const itemDiv = document.createElement('div');
             itemDiv.className = 'item';
 
-            // Botón de WhatsApp según estado
+            // Mensaje de WhatsApp personalizado que me pediste
+            const textoWa = `Hola ${contacto.nombre}, bienvenido(a) al grupo de Avanza País - Túcume, gracias por sumarte y apostar por el único partido que no representa ni forma parte de la mafia ni de la vieja política que ha gobernado Túcume por más de 20 años, somos un grupo limpio que no tiene antecedentes penales, judiciales, nosotros vamos hacer el cambio real en nuestro Distrito. Seamos voceros. Avanza Túcume, Avanzamos todos.`;
+            const enlaceWa = `https://wa.me/51${contacto.telefono}?text=${encodeURIComponent(textoWa)}`;
+
             let waHtml = '';
             if (contacto.enGrupoWa) {
                 waHtml = `<span class="btn-wa agregado">✓ En Grupo</span>`;
             } else {
-                waHtml = `<a href="https://wa.me/51${contacto.telefono}?text=Hola%20${encodeURIComponent(contacto.nombre)},%20bienvenido%20a%20la%20Base%20Túcume" target="_blank" class="btn-wa" onclick="marcarComoAgregado(${contacto.id})">📲 WhatsApp</a>`;
+                waHtml = `<a href="${enlaceWa}" target="_blank" class="btn-wa" onclick="marcarComoAgregado(${contacto.id})">📲 WhatsApp</a>`;
             }
 
             itemDiv.innerHTML = `
@@ -198,7 +197,6 @@
         document.getElementById('caserio').value = c.caserio;
         document.getElementById('descripcion').value = c.descripcion;
 
-        // Eliminar el antiguo para guardarlo actualizado
         contactos = contactos.filter(item => item.id !== id);
         localStorage.setItem('contactos_tucume', JSON.stringify(contactos));
         cargarContactos();
