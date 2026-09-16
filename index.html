@@ -55,6 +55,8 @@
         </div>
     </div>
 
+    <input type="hidden" id="edit-id" value="">
+
     <label>Nombre:</label>
     <input type="text" id="nombre" placeholder="Ej. Anais Baldera Lopez">
 
@@ -67,141 +69,149 @@
     <label>Descripción:</label>
     <input type="text" id="descripcion" placeholder="Ej. Apoya gestión...">
 
-    <button class="btn-guardar" onclick="guardarContacto()">GUARDAR</button>
+    <button class="btn-guardar" id="btn-guardar-main" onclick="guardarContacto()">GUARDAR</button>
 
     <div class="lista">
-        <h3>Registrados:</h3>
-        <div id="lista-contactos"></div>
+        <h3>Registrados en Vivo:</h3>
+        <div id="lista-contactos">
+            <p style="color:#888; font-size:0.9em; text-align:center;">Conectando a la base de datos...</p>
+        </div>
     </div>
 </div>
 
-<script>
-    document.addEventListener('DOMContentLoaded', cargarContactos);
+<!-- Firebase SDK JS (v10 ES Module) -->
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { 
+        getFirestore, collection, addDoc, onSnapshot, doc, updateDoc, deleteDoc, query, orderBy, serverTimestamp 
+    } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-    function obtenerFechaHoraActual() {
-        const ahora = new Date();
-        const fecha = ahora.toLocaleDateString('es-PE');
-        const hora = ahora.toLocaleTimeString('es-PE', { hour: '2-digit', minute: '2-digit' });
-        return `${fecha} ${hora}`;
-    }
+    const firebaseConfig = {
+        apiKey: "AIzaSyBhKljnxtyTrk1xtwR9ghcaKiC5Rnq4YNU",
+        authDomain: "votos-tucume.firebaseapp.com",
+        projectId: "votos-tucume",
+        storageBucket: "votos-tucume.firebasestorage.app",
+        messagingSenderId: "271005922040",
+        appId: "1:271005922040:web:11d22e1b5f3d86f9ba810d",
+        measurementId: "G-M6CJSPCH8R"
+    };
 
-    function guardarContacto() {
-        const nombre = document.getElementById('nombre').value;
-        const telefono = document.getElementById('telefono').value;
-        const caserio = document.getElementById('caserio').value;
-        const descripcion = document.getElementById('descripcion').value;
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const contactosRef = collection(db, "contactos");
+
+    window.guardarContacto = async function() {
+        const idEdit = document.getElementById('edit-id').value;
+        const nombre = document.getElementById('nombre').value.trim();
+        const telefono = document.getElementById('telefono').value.trim();
+        const caserio = document.getElementById('caserio').value.trim();
+        const descripcion = document.getElementById('descripcion').value.trim();
 
         if (!nombre) {
             alert("Por favor, ingresa el nombre.");
             return;
         }
 
-        const nuevoContacto = {
-            id: Date.now(),
-            nombre: nombre,
-            telefono: telefono,
-            caserio: caserio,
-            descripcion: descripcion,
-            fechaHora: obtenerFechaHoraActual(),
-            enGrupoWa: false
-        };
+        const ahora = new Date();
+        const fechaHoraStr = `${ahora.toLocaleDateString('es-PE')} ${ahora.toLocaleTimeString('es-PE', { hour: '2-digit', minute: '2-digit' })}`;
 
-        let contactos = JSON.parse(localStorage.getItem('contactos_tucume') || '[]');
-        contactos = [nuevoContacto, ...contactos];
-        localStorage.setItem('contactos_tucume', JSON.stringify(contactos));
+        try {
+            if (idEdit) {
+                const docRef = doc(db, "contactos", idEdit);
+                await updateDoc(docRef, { nombre, telefono, caserio, descripcion });
+                document.getElementById('edit-id').value = '';
+                document.getElementById('btn-guardar-main').innerText = 'GUARDAR';
+                alert("¡Registro actualizado con éxito!");
+            } else {
+                await addDoc(contactosRef, {
+                    nombre,
+                    telefono,
+                    caserio,
+                    descripcion,
+                    fechaHora: fechaHoraStr,
+                    creadoEn: serverTimestamp(),
+                    enGrupoWa: false
+                });
+                alert("¡Guardado con éxito!");
+            }
 
-        document.getElementById('nombre').value = '';
-        document.getElementById('telefono').value = '';
-        document.getElementById('caserio').value = '';
-        document.getElementById('descripcion').value = '';
-        
-        alert("¡Guardado con éxito!");
-        cargarContactos();
-    }
+            document.getElementById('nombre').value = '';
+            document.getElementById('telefono').value = '';
+            document.getElementById('caserio').value = '';
+            document.getElementById('descripcion').value = '';
+        } catch (e) {
+            alert("Error al guardar: " + e.message);
+        }
+    };
 
-    function cargarContactos() {
+    const q = query(contactosRef, orderBy("creadoEn", "desc"));
+    onSnapshot(q, (snapshot) => {
         const contenedor = document.getElementById('lista-contactos');
         contenedor.innerHTML = '';
-        const contactos = JSON.parse(localStorage.getItem('contactos_tucume') || '[]');
 
-        if (contactos.length === 0) {
+        if (snapshot.empty) {
             contenedor.innerHTML = '<p style="color:#888; font-size:0.9em; text-align:center;">No hay registros aún.</p>';
             return;
         }
 
-        contactos.forEach((contacto) => {
+        snapshot.forEach((docSnap) => {
+            const data = docSnap.data();
+            const id = docSnap.id;
+
+            const textoWa = `Hola ${data.nombre}, bienvenido(a) al grupo de Avanza País - Túcume, gracias por sumarte y apostar por el único partido que no representa ni forma parte de la mafia ni de la vieja política que ha gobernado Túcume por más de 20 años, somos un grupo limpio que no tiene antecedentes penales, judiciales, nosotros vamos hacer el cambio real en nuestro Distrito. Seamos voceros. Avanza Túcume, Avanzamos todos.`;
+            const enlaceWa = `https://wa.me/51${data.telefono}?text=${encodeURIComponent(textoWa)}`;
+
+            let waHtml = data.enGrupoWa
+                ? `<span class="btn-wa agregado">✓ En Grupo</span>`
+                : `<a href="${enlaceWa}" target="_blank" class="btn-wa" onclick="window.marcarComoAgregado('${id}')">📲 WhatsApp</a>`;
+
             const itemDiv = document.createElement('div');
             itemDiv.className = 'item';
-
-            // Mensaje de WhatsApp personalizado que me pediste
-            const textoWa = `Hola ${contacto.nombre}, bienvenido(a) al grupo de Avanza País - Túcume, gracias por sumarte y apostar por el único partido que no representa ni forma parte de la mafia ni de la vieja política que ha gobernado Túcume por más de 20 años, somos un grupo limpio que no tiene antecedentes penales, judiciales, nosotros vamos hacer el cambio real en nuestro Distrito. Seamos voceros. Avanza Túcume, Avanzamos todos.`;
-            const enlaceWa = `https://wa.me/51${contacto.telefono}?text=${encodeURIComponent(textoWa)}`;
-
-            let waHtml = '';
-            if (contacto.enGrupoWa) {
-                waHtml = `<span class="btn-wa agregado">✓ En Grupo</span>`;
-            } else {
-                waHtml = `<a href="${enlaceWa}" target="_blank" class="btn-wa" onclick="marcarComoAgregado(${contacto.id})">📲 WhatsApp</a>`;
-            }
-
             itemDiv.innerHTML = `
                 <div class="item-main-row">
-                    <span class="item-nombre">${contacto.nombre}</span>
-                    <button class="btn-desplegar" onclick="toggleDetalle(${contacto.id})">Detalle ▾</button>
+                    <span class="item-nombre">${data.nombre}</span>
+                    <button class="btn-desplegar" onclick="window.toggleDetalle('${id}')">Detalle ▾</button>
                 </div>
-                <div class="item-detalles" id="detalle-${contacto.id}">
-                    <div class="detalle-linea"><span class="detalle-label">Fecha/Hora:</span> ${contacto.fechaHora}</div>
-                    <div class="detalle-linea"><span class="detalle-label">Celular:</span> ${contacto.telefono}</div>
-                    <div class="detalle-linea"><span class="detalle-label">Caserío:</span> ${contacto.caserio}</div>
-                    <div class="detalle-linea"><span class="detalle-label">Descripción:</span> ${contacto.descripcion}</div>
+                <div class="item-detalles" id="detalle-${id}">
+                    <div class="detalle-linea"><span class="detalle-label">Fecha/Hora:</span> ${data.fechaHora || 'Reciente'}</div>
+                    <div class="detalle-linea"><span class="detalle-label">Celular:</span> ${data.telefono}</div>
+                    <div class="detalle-linea"><span class="detalle-label">Caserío:</span> ${data.caserio}</div>
+                    <div class="detalle-linea"><span class="detalle-label">Descripción:</span> ${data.descripcion}</div>
                     <div class="item-acciones">
                         ${waHtml}
-                        <button class="btn-accion" onclick="editarContacto(${contacto.id})">Editar</button>
-                        <button class="btn-accion btn-eliminar" onclick="eliminarContacto(${contacto.id})">Eliminar</button>
+                        <button class="btn-accion" onclick="window.prepararEditar('${id}', '${data.nombre || ''}', '${data.telefono || ''}', '${data.caserio || ''}', '${data.descripcion || ''}')">Editar</button>
+                        <button class="btn-accion btn-eliminar" onclick="window.eliminarContacto('${id}')">Eliminar</button>
                     </div>
                 </div>
             `;
             contenedor.appendChild(itemDiv);
         });
-    }
+    });
 
-    function toggleDetalle(id) {
+    window.toggleDetalle = function(id) {
         const el = document.getElementById(`detalle-${id}`);
-        el.classList.toggle('activo');
-    }
+        if(el) el.classList.toggle('activo');
+    };
 
-    function marcarComoAgregado(id) {
-        let contactos = JSON.parse(localStorage.getItem('contactos_tucume') || '[]');
-        contactos = contactos.map(c => {
-            if(c.id === id) c.enGrupoWa = true;
-            return c;
-        });
-        localStorage.setItem('contactos_tucume', JSON.stringify(contactos));
-    }
+    window.marcarComoAgregado = async function(id) {
+        const docRef = doc(db, "contactos", id);
+        await updateDoc(docRef, { enGrupoWa: true });
+    };
 
-    function eliminarContacto(id) {
+    window.eliminarContacto = async function(id) {
         if (!confirm('¿Seguro que deseas eliminar este registro?')) return;
-        let contactos = JSON.parse(localStorage.getItem('contactos_tucume') || '[]');
-        contactos = contactos.filter(c => c.id !== id);
-        localStorage.setItem('contactos_tucume', JSON.stringify(contactos));
-        cargarContactos();
-    }
+        await deleteDoc(doc(db, "contactos", id));
+    };
 
-    function editarContacto(id) {
-        let contactos = JSON.parse(localStorage.getItem('contactos_tucume') || '[]');
-        let c = contactos.find(item => item.id === id);
-        if(!c) return;
-
-        document.getElementById('nombre').value = c.nombre;
-        document.getElementById('telefono').value = c.telefono;
-        document.getElementById('caserio').value = c.caserio;
-        document.getElementById('descripcion').value = c.descripcion;
-
-        contactos = contactos.filter(item => item.id !== id);
-        localStorage.setItem('contactos_tucume', JSON.stringify(contactos));
-        cargarContactos();
+    window.prepararEditar = function(id, nombre, telefono, caserio, descripcion) {
+        document.getElementById('edit-id').value = id;
+        document.getElementById('nombre').value = nombre;
+        document.getElementById('telefono').value = telefono;
+        document.getElementById('caserio').value = caserio;
+        document.getElementById('descripcion').value = descripcion;
+        document.getElementById('btn-guardar-main').innerText = 'ACTUALIZAR REGISTRO';
         window.scrollTo({top: 0, behavior: 'smooth'});
-    }
+    };
 </script>
 
 </body>
