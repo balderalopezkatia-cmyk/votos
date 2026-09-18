@@ -466,7 +466,6 @@
         }
     });
 
-    // Función auxiliar para limpiar texto (quita tildes y espacios extra, y pasa a minúsculas)
     function normalizarTexto(texto) {
         return texto.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim().replace(/\s+/g, ' ');
     }
@@ -485,7 +484,6 @@
 
         const nombreNorm = normalizarTexto(nombreInput);
 
-        // Verificamos duplicados en la base de datos antes de guardar (si no estamos editando)
         if (!idEdit) {
             const querySnapshot = await getDocs(contactosRef);
             let encontradoPorCelular = false;
@@ -567,7 +565,8 @@
             const numeroActual = total - index;
             index++;
 
-            const textoWa = `Hola ${data.nombre}, bienvenido(a) al grupo de Avanza País - Túcume, gracias por sumarte y apostar por el único partido que no representa ni forma parte de la mafia ni de la vieja política que ha gobernado Túcume por más de 20 años, somos un grupo limpio que no tiene antecedentes penales, judiciales, nosotros vamos hacer el cambio real en nuestro Distrito. Seamos voceros. Avanza Túcume, Avanzamos todos.`;
+            // Nuevo mensaje de WhatsApp con el enlace de Facebook incluido
+            const textoWa = `Hola ${data.nombre}, bienvenido(a) al grupo de Avanza País - Túcume, gracias por sumarte y apostar por el único partido que no representa ni forma parte de la mafia ni de la vieja política que ha gobernado Túcume por más de 20 años, somos un grupo limpio que no tiene antecedentes penales, judiciales, nosotros vamos hacer el cambio real en nuestro Distrito. Seamos voceros. Avanza Túcume, Avanzamos todos.\n\nÚnete a nuestra página de Facebook y no te pierdas de nuestras reuniones, caminatas, propuestas y mucho más: https://www.facebook.com/share/1E2AgThZUP/`;
             const enlaceWa = `https://wa.me/51${data.telefono}?text=${encodeURIComponent(textoWa)}`;
 
             let waHtml = data.enGrupoWa
