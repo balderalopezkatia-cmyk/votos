@@ -108,7 +108,7 @@
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
     import { 
-        getFirestore, collection, addDoc, onSnapshot, doc, updateDoc, deleteDoc, query, orderBy, serverTimestamp 
+        getFirestore, collection, addDoc, onSnapshot, doc, updateDoc, deleteDoc, query, orderBy, serverTimestamp, getDocs 
     } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
     const firebaseConfig = {
@@ -125,8 +125,7 @@
     const db = getFirestore(app);
     const contactosRef = collection(db, "contactos");
 
-    // Contraseña configurada
-    const PASSWORD_SECRETA = "Trencito2027";
+    const PASSWORD_SECRETA = "TucumeAvanza2027";
 
     window.verificarPassword = function() {
         const passIngresada = document.getElementById('input-password').value;
@@ -153,16 +152,50 @@
         }
     });
 
+    // Función auxiliar para limpiar texto (quita tildes y espacios extra, y pasa a minúsculas)
+    function normalizarTexto(texto) {
+        return texto.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim().replace(/\s+/g, ' ');
+    }
+
     window.guardarContacto = async function() {
         const idEdit = document.getElementById('edit-id').value;
-        const nombre = document.getElementById('nombre').value.trim();
-        const telefono = document.getElementById('telefono').value.trim();
+        const nombreInput = document.getElementById('nombre').value.trim();
+        const telefonoInput = document.getElementById('telefono').value.trim();
         const caserio = document.getElementById('caserio').value.trim();
         const descripcion = document.getElementById('descripcion').value.trim();
 
-        if (!nombre) {
+        if (!nombreInput) {
             alert("Por favor, ingresa el nombre.");
             return;
+        }
+
+        const nombreNorm = normalizarTexto(nombreInput);
+
+        // Verificamos duplicados en la base de datos antes de guardar (si no estamos editando)
+        if (!idEdit) {
+            const querySnapshot = await getDocs(contactosRef);
+            let encontradoPorCelular = false;
+            let encontradoPorNombre = false;
+
+            querySnapshot.forEach((docSnap) => {
+                const data = docSnap.data();
+                if (telefonoInput && data.telefono && data.telefono.trim() === telefonoInput) {
+                    encontradoPorCelular = true;
+                }
+                if (data.nombre && normalizarTexto(data.nombre) === nombreNorm) {
+                    encontradoPorNombre = true;
+                }
+            });
+
+            if (encontradoPorCelular) {
+                if (!confirm(`⚠️ El número de celular "${telefonoInput}" ya se encuentra registrado en el sistema.\n\n¿Deseas agregarlo otra vez de todos modos?`)) {
+                    return;
+                }
+            } else if (encontradoPorNombre) {
+                if (!confirm(`⚠️ El nombre "${nombreInput}" ya se encuentra registrado en el sistema.\n\n¿Deseas agregarlo otra vez de todos modos?`)) {
+                    return;
+                }
+            }
         }
 
         const ahora = new Date();
@@ -171,14 +204,14 @@
         try {
             if (idEdit) {
                 const docRef = doc(db, "contactos", idEdit);
-                await updateDoc(docRef, { nombre, telefono, caserio, descripcion });
+                await updateDoc(docRef, { nombre: nombreInput, telefono: telefonoInput, caserio, descripcion });
                 document.getElementById('edit-id').value = '';
                 document.getElementById('btn-guardar-main').innerText = 'GUARDAR';
                 alert("¡Registro actualizado con éxito!");
             } else {
                 await addDoc(contactosRef, {
-                    nombre,
-                    telefono,
+                    nombre: nombreInput,
+                    telefono: telefonoInput,
                     caserio,
                     descripcion,
                     fechaHora: fechaHoraStr,
