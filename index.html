@@ -322,6 +322,10 @@
         body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background: #f8f9fa; padding: 15px; margin: 0; }
         .container { max-width: 400px; margin: 0 auto; background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
 
+        /* Pantalla de bloqueo de contraseña */
+        #pantalla-login { display: flex; flex-direction: column; justify-content: center; min-height: 80vh; text-align: center; }
+        #app-contenido { display: none; } /* Oculto hasta que ponga la clave correcta */
+
         .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #e9ecef; padding-bottom: 15px; margin-bottom: 20px; }
         h2 { margin: 0; color: #333; font-size: 1.4em; }
         .logo-box { width: 65px; height: 65px; border: 1px solid #ced4da; border-radius: 8px; display: flex; align-items: center; justify-content: center; background: #fff; overflow: hidden; }
@@ -331,17 +335,19 @@
         input { width: 100%; padding: 12px; margin-top: 6px; border: 1px solid #ced4da; border-radius: 8px; box-sizing: border-box; font-size: 1em; background: #fff; }
         input:focus { outline: none; border-color: #80bdff; box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25); }
 
-        button.btn-guardar { width: 100%; background-color: #d63384; color: white; border: none; padding: 15px; margin-top: 25px; font-size: 1.1em; font-weight: bold; border-radius: 8px; cursor: pointer; transition: background 0.2s; }
-        button.btn-guardar:active { background-color: #a32765; }
+        button.btn-guardar, .btn-login { width: 100%; background-color: #d63384; color: white; border: none; padding: 15px; margin-top: 25px; font-size: 1.1em; font-weight: bold; border-radius: 8px; cursor: pointer; transition: background 0.2s; }
+        button.btn-guardar:active, .btn-login:active { background-color: #a32765; }
 
         .lista { margin-top: 30px; }
-        h3 { color: #495057; font-size: 1.2em; margin-bottom: 15px; }
+        h3 { color: #495057; font-size: 1.2em; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; }
+        
+        .contador-badge { background: #e9ecef; color: #495057; font-size: 0.85em; padding: 3px 8px; border-radius: 12px; font-weight: bold; }
 
         .item { background: #fff; padding: 12px; margin-top: 10px; border-radius: 10px; border: 1px solid #e9ecef; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
-        .item-main-row { display: flex; justify-content: space-between; align-items: center; }
-        .item-nombre { font-weight: bold; color: #212529; font-size: 1.05em; }
+        .item-main-row { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+        .item-nombre { font-weight: bold; color: #212529; font-size: 1.05em; overflow: hidden; text-overflow: ellipsis; }
         
-        .btn-desplegar { background: #e9ecef; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 0.85em; font-weight: bold; color: #495057; }
+        .btn-desplegar { background: #e9ecef; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 0.85em; font-weight: bold; color: #495057; flex-shrink: 0; }
         .btn-desplegar:hover { background: #dee2e6; }
 
         .item-detalles { display: none; margin-top: 10px; padding-top: 10px; border-top: 1px solid #f1f3f5; font-size: 0.9em; color: #555; }
@@ -357,38 +363,57 @@
         
         .btn-wa { background: #25d366; color: white; border: none; padding: 5px 10px; border-radius: 5px; font-size: 0.8em; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 4px; text-decoration: none; }
         .btn-wa.agregado { background: #6c757d; cursor: default; }
+        .error-pass { color: #dc3545; font-size: 0.85em; margin-top: 10px; display: none; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <div class="header">
+    <!-- PANTALLA DE ACCESO / CONTRASEÑA -->
+    <div id="pantalla-login">
         <h2>Avanza País<br>Base Túcume</h2>
-        <div class="logo-box">
-            <img src="logo.png" alt="Logo" onerror="this.parentElement.innerHTML='LOGO'">
-        </div>
+        <p style="color: #6c757d; font-size: 0.9em; margin-top: 5px;">Ingresa la contraseña para acceder al sistema</p>
+        
+        <label style="text-align: left;">Contraseña:</label>
+        <input type="password" id="input-password" placeholder="Introduce tu clave">
+        <div id="error-msg" class="error-pass">Contraseña incorrecta. Inténtalo de nuevo.</div>
+        
+        <button class="btn-login" onclick="verificarPassword()">INGRESAR</button>
     </div>
 
-    <input type="hidden" id="edit-id" value="">
+    <!-- CONTENIDO DE LA APLICACIÓN -->
+    <div id="app-contenido">
+        <div class="header">
+            <h2>Avanza País<br>Base Túcume</h2>
+            <div class="logo-box">
+                <img src="logo.png" alt="Logo" onerror="this.parentElement.innerHTML='LOGO'">
+            </div>
+        </div>
 
-    <label>Nombre:</label>
-    <input type="text" id="nombre" placeholder="Ej. Anais Baldera Lopez">
+        <input type="hidden" id="edit-id" value="">
 
-    <label>Celular / WhatsApp:</label>
-    <input type="tel" id="telefono" placeholder="Ej. 991049389">
+        <label>Nombre:</label>
+        <input type="text" id="nombre" placeholder="Ej. Anais Baldera Lopez">
 
-    <label>Caserío o Sector:</label>
-    <input type="text" id="caserio" placeholder="Ej. Mariscal Castilla">
+        <label>Celular / WhatsApp:</label>
+        <input type="tel" id="telefono" placeholder="Ej. 991049389">
 
-    <label>Descripción:</label>
-    <input type="text" id="descripcion" placeholder="Ej. Apoya gestión...">
+        <label>Caserío o Sector:</label>
+        <input type="text" id="caserio" placeholder="Ej. Mariscal Castilla">
 
-    <button class="btn-guardar" id="btn-guardar-main" onclick="guardarContacto()">GUARDAR</button>
+        <label>Descripción:</label>
+        <input type="text" id="descripcion" placeholder="Ej. Apoya gestión...">
 
-    <div class="lista">
-        <h3>Registrados en Vivo:</h3>
-        <div id="lista-contactos">
-            <p style="color:#888; font-size:0.9em; text-align:center;">Conectando a la base de datos...</p>
+        <button class="btn-guardar" id="btn-guardar-main" onclick="guardarContacto()">GUARDAR</button>
+
+        <div class="lista">
+            <h3>
+                <span>Registrados en Vivo:</span>
+                <span id="contador-registros" class="contador-badge">0</span>
+            </h3>
+            <div id="lista-contactos">
+                <p style="color:#888; font-size:0.9em; text-align:center;">Conectando a la base de datos...</p>
+            </div>
         </div>
     </div>
 </div>
@@ -397,7 +422,7 @@
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
     import { 
-        getFirestore, collection, addDoc, onSnapshot, doc, updateDoc, deleteDoc, query, orderBy, serverTimestamp 
+        getFirestore, collection, addDoc, onSnapshot, doc, updateDoc, deleteDoc, query, orderBy, serverTimestamp, getDocs 
     } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
     const firebaseConfig = {
@@ -414,16 +439,77 @@
     const db = getFirestore(app);
     const contactosRef = collection(db, "contactos");
 
+    const PASSWORD_SECRETA = "TucumeAvanza2027";
+
+    window.verificarPassword = function() {
+        const passIngresada = document.getElementById('input-password').value;
+        const errorMsg = document.getElementById('error-msg');
+
+        if (passIngresada === PASSWORD_SECRETA) {
+            document.getElementById('pantalla-login').style.display = 'none';
+            document.getElementById('app-contenido').style.display = 'block';
+            sessionStorage.setItem("sesion_activa", "true");
+        } else {
+            errorMsg.style.display = 'block';
+            document.getElementById('input-password').value = '';
+        }
+    };
+
+    if (sessionStorage.getItem("sesion_activa") === "true") {
+        document.getElementById('pantalla-login').style.display = 'none';
+        document.getElementById('app-contenido').style.display = 'block';
+    }
+
+    document.getElementById('input-password').addEventListener("keypress", function(event) {
+        if (event.key === "Enter") {
+            verificarPassword();
+        }
+    });
+
+    // Función auxiliar para limpiar texto (quita tildes y espacios extra, y pasa a minúsculas)
+    function normalizarTexto(texto) {
+        return texto.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim().replace(/\s+/g, ' ');
+    }
+
     window.guardarContacto = async function() {
         const idEdit = document.getElementById('edit-id').value;
-        const nombre = document.getElementById('nombre').value.trim();
-        const telefono = document.getElementById('telefono').value.trim();
+        const nombreInput = document.getElementById('nombre').value.trim();
+        const telefonoInput = document.getElementById('telefono').value.trim();
         const caserio = document.getElementById('caserio').value.trim();
         const descripcion = document.getElementById('descripcion').value.trim();
 
-        if (!nombre) {
+        if (!nombreInput) {
             alert("Por favor, ingresa el nombre.");
             return;
+        }
+
+        const nombreNorm = normalizarTexto(nombreInput);
+
+        // Verificamos duplicados en la base de datos antes de guardar (si no estamos editando)
+        if (!idEdit) {
+            const querySnapshot = await getDocs(contactosRef);
+            let encontradoPorCelular = false;
+            let encontradoPorNombre = false;
+
+            querySnapshot.forEach((docSnap) => {
+                const data = docSnap.data();
+                if (telefonoInput && data.telefono && data.telefono.trim() === telefonoInput) {
+                    encontradoPorCelular = true;
+                }
+                if (data.nombre && normalizarTexto(data.nombre) === nombreNorm) {
+                    encontradoPorNombre = true;
+                }
+            });
+
+            if (encontradoPorCelular) {
+                if (!confirm(`⚠️ El número de celular "${telefonoInput}" ya se encuentra registrado en el sistema.\n\n¿Deseas agregarlo otra vez de todos modos?`)) {
+                    return;
+                }
+            } else if (encontradoPorNombre) {
+                if (!confirm(`⚠️ El nombre "${nombreInput}" ya se encuentra registrado en el sistema.\n\n¿Deseas agregarlo otra vez de todos modos?`)) {
+                    return;
+                }
+            }
         }
 
         const ahora = new Date();
@@ -432,14 +518,14 @@
         try {
             if (idEdit) {
                 const docRef = doc(db, "contactos", idEdit);
-                await updateDoc(docRef, { nombre, telefono, caserio, descripcion });
+                await updateDoc(docRef, { nombre: nombreInput, telefono: telefonoInput, caserio, descripcion });
                 document.getElementById('edit-id').value = '';
                 document.getElementById('btn-guardar-main').innerText = 'GUARDAR';
                 alert("¡Registro actualizado con éxito!");
             } else {
                 await addDoc(contactosRef, {
-                    nombre,
-                    telefono,
+                    nombre: nombreInput,
+                    telefono: telefonoInput,
                     caserio,
                     descripcion,
                     fechaHora: fechaHoraStr,
@@ -461,16 +547,25 @@
     const q = query(contactosRef, orderBy("creadoEn", "desc"));
     onSnapshot(q, (snapshot) => {
         const contenedor = document.getElementById('lista-contactos');
+        const contadorBadge = document.getElementById('contador-registros');
         contenedor.innerHTML = '';
+
+        contadorBadge.innerText = snapshot.size;
 
         if (snapshot.empty) {
             contenedor.innerHTML = '<p style="color:#888; font-size:0.9em; text-align:center;">No hay registros aún.</p>';
             return;
         }
 
+        let total = snapshot.size;
+        let index = 0;
+
         snapshot.forEach((docSnap) => {
             const data = docSnap.data();
             const id = docSnap.id;
+            
+            const numeroActual = total - index;
+            index++;
 
             const textoWa = `Hola ${data.nombre}, bienvenido(a) al grupo de Avanza País - Túcume, gracias por sumarte y apostar por el único partido que no representa ni forma parte de la mafia ni de la vieja política que ha gobernado Túcume por más de 20 años, somos un grupo limpio que no tiene antecedentes penales, judiciales, nosotros vamos hacer el cambio real en nuestro Distrito. Seamos voceros. Avanza Túcume, Avanzamos todos.`;
             const enlaceWa = `https://wa.me/51${data.telefono}?text=${encodeURIComponent(textoWa)}`;
@@ -483,7 +578,7 @@
             itemDiv.className = 'item';
             itemDiv.innerHTML = `
                 <div class="item-main-row">
-                    <span class="item-nombre">${data.nombre}</span>
+                    <span class="item-nombre">${numeroActual}. ${data.nombre}</span>
                     <button class="btn-desplegar" onclick="window.toggleDetalle('${id}')">Detalle ▾</button>
                 </div>
                 <div class="item-detalles" id="detalle-${id}">
